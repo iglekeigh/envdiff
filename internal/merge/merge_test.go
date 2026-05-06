@@ -85,3 +85,18 @@ func TestMerge_EmptySources_ReturnsEmptyEnv(t *testing.T) {
 		t.Errorf("expected empty env, got %d keys", len(res.Env))
 	}
 }
+
+func TestMerge_StrategyLast_ConflictsStillRecorded(t *testing.T) {
+	// Even when using StrategyLast, conflicts should still be recorded
+	// so callers can inspect which keys had differing values across sources.
+	a := map[string]string{"KEY": "first"}
+	b := map[string]string{"KEY": "second"}
+
+	res, err := merge.Merge([]map[string]string{a, b}, nil, merge.StrategyLast)
+	if err != nil {
+		t.Fatalf("unexpected error: %v", err)
+	}
+	if len(res.Conflicts["KEY"]) != 2 {
+		t.Errorf("expected conflict entry with 2 sources, got %d", len(res.Conflicts["KEY"]))
+	}
+}
