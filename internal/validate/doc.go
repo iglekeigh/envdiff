@@ -4,7 +4,19 @@
 // custom user-defined rules. Violations are returned as structured values
 // that describe which key failed and why.
 //
-// Example usage:
+// # Rules
+//
+// A Rule is a function that inspects a key-value pair and returns a
+// Violation if the entry does not meet the rule's requirements, or nil
+// if the entry is valid. Rules can be composed and passed to Validate.
+//
+// # Violations
+//
+// A Violation describes a single validation failure. It includes the
+// offending key, a human-readable message, and an optional severity
+// level (e.g. warning vs. error).
+//
+// # Example usage
 //
 //	rules := validate.DefaultRules()
 //	violations := validate.Validate(envMap, rules)
