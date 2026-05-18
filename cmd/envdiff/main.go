@@ -13,9 +13,9 @@ import (
 
 func main() {
 	var (
-		redactFlag  = flag.Bool("redact", false, "Redact sensitive values in output")
-		formatFlag  = flag.String("format", "text", "Output format: text or json")
-		filterFlag  = flag.String("filter", "", "Filter results by status: missing, extra, changed, match")
+		redactFlag = flag.Bool("redact", false, "Redact sensitive values in output")
+		formatFlag = flag.String("format", "text", "Output format: text or json")
+		filterFlag = flag.String("filter", "", "Filter results by status: missing, extra, changed, match")
 	)
 	flag.Usage = func() {
 		fmt.Fprintf(os.Stderr, "Usage: envdiff [flags] <base.env> <other.env>\n\n")
@@ -54,6 +54,10 @@ func main() {
 	result := diff.Compare(baseEnv, otherEnv)
 
 	if *filterFlag != "" {
+		if !isValidFilter(*filterFlag) {
+			fmt.Fprintf(os.Stderr, "invalid filter value %q: must be one of: missing, extra, changed, match\n", *filterFlag)
+			os.Exit(1)
+		}
 		result = result.Filter(*filterFlag)
 	}
 
@@ -66,4 +70,13 @@ func main() {
 	if result.HasDifferences() {
 		os.Exit(2)
 	}
+}
+
+// isValidFilter returns true if the given filter value is one of the accepted statuses.
+func isValidFilter(filter string) bool {
+	switch filter {
+	case "missing", "extra", "changed", "match":
+		return true
+	}
+	return false
 }
